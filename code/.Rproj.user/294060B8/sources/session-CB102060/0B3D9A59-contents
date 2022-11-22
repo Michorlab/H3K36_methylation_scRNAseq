@@ -1,0 +1,190 @@
+source(here::here("libraries.R"))
+
+
+###########################################################################
+###########################################################################
+###                                                                     ###
+###                          LOAD THE RAW DATA                          ###
+###                                                                     ###
+###########################################################################
+###########################################################################
+michaelData <- Read10X(data.dir = "../data/cellranger/filtered_feature_bc_matrix/")
+rownames(michaelData) <- toupper(rownames(michaelData))
+michael <- CreateSeuratObject(counts = michaelData)
+
+
+
+############################################################################
+############################################################################
+###                                                                      ###
+###            SEPARATE BARCODES PER SAMPLE AND LOAD METADATA            ###
+###                                                                      ###
+############################################################################
+############################################################################
+michael <- AddMetaData(object = michael, metadata = sapply(rownames(michael@meta.data), function(x){strsplit(x, "-")}[[1]][2]), col.name = "sample")
+michael@meta.data$sample <- sapply(michael@meta.data$sample, function(x){
+  if (x == 1)
+    return("d0")
+  if (x == 2)
+    return("d9")
+  if (x == 3)
+    return("H3-d2")
+  if (x == 4)
+    return("K36M-d2")
+  if (x == 5)
+    return("H3-d4")
+  if (x == 6)
+    return("K36M-d4")
+  if (x == 7)
+    return("H3-d6")
+  if (x == 8)
+    return("K36M-d6")
+  if (x == 9)
+    return("H3-d8")
+  if (x == 10)
+    return("K36M-d8")
+})
+michael@meta.data$histone <- sapply(michael@meta.data$sample, function(x){
+  if (x == "d0")
+    return("d0")
+  if (x == "d9")
+    return("d9")
+  if (x == "H3-d2")
+    return("H3")
+  if (x == "K36M-d2")
+    return("K36M")
+  if (x == "H3-d4")
+    return("H3")
+  if (x == "K36M-d4")
+    return("K36M")
+  if (x == "H3-d6")
+    return("H3")
+  if (x == "K36M-d6")
+    return("K36M")
+  if (x == "H3-d8")
+    return("H3")
+  if (x == "K36M-d8")
+    return("K36M")
+})
+michael@meta.data$day <- sapply(michael@meta.data$sample, function(x){
+  if (x == "d0")
+    return("d0")
+  if (x == "d9")
+    return("d9")
+  if (x == "H3-d2")
+    return("d2")
+  if (x == "K36M-d2")
+    return("d2")
+  if (x == "H3-d4")
+    return("d4")
+  if (x == "K36M-d4")
+    return("d4")
+  if (x == "H3-d6")
+    return("d6")
+  if (x == "K36M-d6")
+    return("d6")
+  if (x == "H3-d8")
+    return("d8")
+  if (x == "K36M-d8")
+    return("d8")
+})
+
+
+## calculate proportion of mitochondrial genes with Seurat
+michael[["percent.mt"]] <- PercentageFeatureSet(michael, pattern = "^MT-")
+
+
+## transform to SingleCellExperiment
+michael.sce <- as.SingleCellExperiment(michael)
+
+
+## calculate QC metrics on SingleCellExperiment
+michael.sce <- addPerCellQC(michael.sce)
+
+
+## quality control plots with Seurat
+pdf("../plots/qc-featureScatter-before.pdf")
+FeatureScatter(michael, feature1 = "nCount_RNA", feature2 = "nFeature_RNA", group.by = "sample", pt.size = 1.5) + 
+  labs(x = "count of UMIs (mRNA molecules) per cell", y = "count of genes per cell", subtitle = "All samples")
+dev.off()
+
+
+## identifying and removing cell outliers with Scater
+nmad.michael <- 3
+
+# library size (count depth)
+low.lib.michael <- isOutlier(michael.sce$sum, type = "lower", nmad = nmad.michael, log = TRUE)
+sum(low.lib.michael)
+high.lib.michael <- isOutlier(michael.sce$sum, type = "higher", nmad = nmad.michael, log = TRUE)
+sum(high.lib.michael)
+pdf(paste0("../../plots/qc-histLib-", nmad.michael, "MADs-before.pdf", sep = ""), width = 8)
+hist(log10(michael.sce$sum), breaks=100, main = "histogram of library size", col="grey80", xlab=expression(log[10]~"library size"), ylab = "frequency", cex.lab = 1.4, cex.axis = 1.4)
+abline(v = max(log10(michael.sce$sum)[which(low.lib.michael == 1)]), col="blue", lwd=2, lty=2)
+abline(v = min(log10(michael.sce$sum)[which(high.lib.michael == 1)]), col="blue", lwd=2, lty=2)
+dev.off()
+
+# number of detected genes
+low.genes.michael <- isOutlier(michael.sce$detected, type = "lower", nmad = nmad.michael, log = 10)
+sum(low.genes.michael)
+high.genes.michael <- isOutlier(michael.sce$detected, type = "higher", nmad = nmad.michael, log = 10)
+sum(high.genes.michael)
+pdf(paste0("../plots/qc-histGenes-", nmad.michael, "MADs-before.pdf", sep = ""), width = 8)
+hist(log10(michael.sce$detected), breaks=100, main = "histogram of number of genes", col="grey80", xlab=expression(log[10]~"number of detected genes"), ylab = "frequency", cex.lab = 1.4, cex.axis = 1.4)
+abline(v = max(log10(michael.sce$detected)[which(low.genes.michael == 1)]), col="blue", lwd=2, lty=2)
+#abline(v = min(log10(michael.sce$detected)[which(high.genes.michael == 1)]), col="blue", lwd=2, lty=2)
+dev.off()
+
+# percentage of mitochondrial genes
+nmad.michael.mito <- 3
+low.mito.michael <- isOutlier(michael.sce$percent.mt, type = "higher", nmad = nmad.michael.mito, log = FALSE)
+sum(low.mito.michael)
+pdf(paste0("../plots/qc-histMito-", nmad.michael.mito, "MADs-before.pdf"), width = 8)
+hist(michael.sce$percent.mt, breaks=100, col="grey80", main = "histogram of percentage mitochondria", xlab="percent of mitochondrial genes", ylab = "frequency", cex.lab = 1.4, cex.axis = 1.4)
+abline(v = min(michael.sce$percent.mt[which(low.mito.michael == 1)]), col="blue", lwd=2, lty=2)
+dev.off()
+
+# identify the outliers according to the above metrics
+discard.michael.high <- high.lib.michael | high.genes.michael
+sum(discard.michael.high)
+discard.michael.low <- low.lib.michael | low.genes.michael | low.mito.michael
+sum(discard.michael.low)
+discard.michael <- discard.michael.low | discard.michael.high
+sum(discard.michael)
+michael.sce <- michael.sce[,!discard.michael]
+
+
+
+############################################################################
+############################################################################
+###                                                                      ###
+###                QUALITY CONTROL METRICS AFTER CLEANING                ###
+###                                                                      ###
+############################################################################
+############################################################################
+# library size (count depth)
+pdf(paste0("../plots/qc-histLib-", nmad.michael, "MADs-after.pdf", sep = ""), width = 8)
+hist(log10(michael.sce$sum), breaks=100, main = "histogram of library size", col="grey80", xlab=expression(log[10]~"library size"), ylab = "frequency", cex.lab = 1.4, cex.axis = 1.4)
+dev.off()
+
+# number of detected genes
+pdf(paste0("../../plots/qc-histGenes-", nmad.michael, "MADs-after.pdf", sep = ""), width = 8)
+hist(log10(michael.sce$detected), breaks=100, main = "histogram of number of genes", col="grey80", xlab=expression(log[10]~"number of detected genes"), ylab = "frequency", cex.lab = 1.4, cex.axis = 1.4)
+dev.off()
+
+# percentage of mitochondrial genes
+pdf(paste0("../../plots/qc-histMito-", nmad.michael.mito, "MADs-after.pdf"), width = 8)
+hist(michael.sce$percent.mt, breaks=100, col="grey80", main = "histogram of percentage mitochondria", xlab="percent of mitochondrial genes", ylab = "frequency", cex.lab = 1.4, cex.axis = 1.4)
+dev.off()
+
+
+
+###########################################################################
+###########################################################################
+###                                                                     ###
+###                     CONVERT DATA BACK TO SEURAT                     ###
+###                                                                     ###
+###########################################################################
+###########################################################################
+michael <- as.Seurat(michael.sce)
+
+saveRDS(michael, file = "../data/rdata/michael-initial.RDS")
