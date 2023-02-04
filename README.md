@@ -21,7 +21,7 @@ Data
 -------
 The single cell RNA sequencing data generated in this study has been deposited in the NCBI GEO database under accession number [GSE203536](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE203536).
 
-Preprocessed RDS objects can be downloaded from [zenodo](https://zenodo.org/record/7454907#.Y97iXS-B2NF).
+Preprocessed RDS objects can be downloaded from [Zenodo](https://zenodo.org/record/7454907#.Y97iXS-B2NF).
 
 
 ## Contact
