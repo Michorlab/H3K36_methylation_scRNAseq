@@ -14,7 +14,7 @@ Content
 * `/code/`: R scripts to reproduce analyses of single cell RNA sequencing data
 * `/data/`: path folder to read in cellranger outputs, as well as preprocessed RDS data objects to be used as input for the scripts in this repo. This data needs to be downloaded from [Zenodo](https://zenodo.org/record/7454907#.Y97iXS-B2NF), and placed in the folder 'data'
 * `/plots/`: output plots from the single cell RNA sequencing analyses, organized by self-explanatory folder names.
-* `/tables/`: relevant gene lists (e.g. signatures) used throughout the analyses, together with coordinates of cells after dimensionality reduction
+* `/tables/`: relevant gene lists (e.g. signatures and marker genes) used throughout the analyses, together with coordinates of cells after dimensionality reduction
 
 
 Data
