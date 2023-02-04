@@ -11,9 +11,7 @@ While epigenetic regulation in early development and differentiation is relative
 
 Content
 -------
-* `/01_cellranger/`: cellranger quality control html files on samples from the three single cell datasets generated: sorted ACI epithelial cells, sorted SD epithelial cells, whole mammary gland SD cells. 
-* `/02_R_single_cell/`: R scripts to reproduce single cell analyses.
-* `/03_R_bulk/`: R scripts to reproduce bulk RNASeq analyses.
-* `/data/`: preprocessed bulk outputs, cellranger count outputs and htseq count outputs
-* `/plots/`: output plots from the single cell and bulk analyses, organized by self-explanatory folder names.
-* `/tables/`: number of cells per cluster, relevant gene lists (e.g. signatures) used throughout the analysis, differentially expressed genes from bulk analyses, and multiple sample metadata files.
+* `/code/`: R scripts to reproduce single cell analyses
+* `/data/`: path folder to read in preprocessed RDS data objects, which can be downloaded from Zenodo DOI: 10.5281/zenodo.7454907
+* `/plots/`: output plots from the single cell analyses, organized by self-explanatory folder names.
+* `/tables/`: relevant gene lists (e.g. signatures) used throughout the analysis and cell coordinates after dimensionality reduction
