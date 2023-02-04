@@ -15,3 +15,14 @@ Content
 * `/data/`: path folder to read in preprocessed RDS data objects, which can be downloaded from Zenodo DOI: 10.5281/zenodo.7454907
 * `/plots/`: output plots from the single cell analyses, organized by self-explanatory folder names.
 * `/tables/`: relevant gene lists (e.g. signatures) used throughout the analysis and cell coordinates after dimensionality reduction
+
+
+Data
+-------
+The scRNA-seq data generated in this study have been deposited in the NCBI GEO database under accession number [GSE203536](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE203536).
+
+Preprocessed RDS objects can be downloaded from [zenodo](https://zenodo.org/record/7454907#.Y97iXS-B2NF).
+
+
+## Contact
+For any questions, comments or suggestions regarding the analysis or interpretation of the single cell sequencing data in this manuscript, please feel to reach out to me via [GitHub](https://github.com/csimona), [Twitter](https://twitter.com/simocristea) or email (scristea@jimmy.harvard.edu).
