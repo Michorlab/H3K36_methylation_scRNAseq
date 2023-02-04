@@ -1,3 +1,9 @@
+## Single cell analysis on H3K36 methylation data: quality control
+## Author: Simona Cristea
+## Date: November 2022
+## Publication: H3K36 methylation maintains cell identity by regulating opposing lineage programs
+
+
 source(here::here("libraries.R"))
 
 
@@ -103,7 +109,7 @@ michael.sce <- addPerCellQC(michael.sce)
 
 
 ## quality control plots with Seurat
-pdf("../plots/qc-featureScatter-before.pdf")
+pdf("../plots/qc/qc-featureScatter-before.pdf")
 FeatureScatter(michael, feature1 = "nCount_RNA", feature2 = "nFeature_RNA", group.by = "sample", pt.size = 1.5) + 
   labs(x = "count of UMIs (mRNA molecules) per cell", y = "count of genes per cell", subtitle = "All samples")
 dev.off()
@@ -117,7 +123,7 @@ low.lib.michael <- isOutlier(michael.sce$sum, type = "lower", nmad = nmad.michae
 sum(low.lib.michael)
 high.lib.michael <- isOutlier(michael.sce$sum, type = "higher", nmad = nmad.michael, log = TRUE)
 sum(high.lib.michael)
-pdf(paste0("../../plots/qc-histLib-", nmad.michael, "MADs-before.pdf", sep = ""), width = 8)
+pdf(paste0("../plots/qc/qc-histLib-", nmad.michael, "MADs-before.pdf", sep = ""), width = 8)
 hist(log10(michael.sce$sum), breaks=100, main = "histogram of library size", col="grey80", xlab=expression(log[10]~"library size"), ylab = "frequency", cex.lab = 1.4, cex.axis = 1.4)
 abline(v = max(log10(michael.sce$sum)[which(low.lib.michael == 1)]), col="blue", lwd=2, lty=2)
 abline(v = min(log10(michael.sce$sum)[which(high.lib.michael == 1)]), col="blue", lwd=2, lty=2)
@@ -128,7 +134,7 @@ low.genes.michael <- isOutlier(michael.sce$detected, type = "lower", nmad = nmad
 sum(low.genes.michael)
 high.genes.michael <- isOutlier(michael.sce$detected, type = "higher", nmad = nmad.michael, log = 10)
 sum(high.genes.michael)
-pdf(paste0("../plots/qc-histGenes-", nmad.michael, "MADs-before.pdf", sep = ""), width = 8)
+pdf(paste0("../plots/qc/qc-histGenes-", nmad.michael, "MADs-before.pdf", sep = ""), width = 8)
 hist(log10(michael.sce$detected), breaks=100, main = "histogram of number of genes", col="grey80", xlab=expression(log[10]~"number of detected genes"), ylab = "frequency", cex.lab = 1.4, cex.axis = 1.4)
 abline(v = max(log10(michael.sce$detected)[which(low.genes.michael == 1)]), col="blue", lwd=2, lty=2)
 #abline(v = min(log10(michael.sce$detected)[which(high.genes.michael == 1)]), col="blue", lwd=2, lty=2)
@@ -138,7 +144,7 @@ dev.off()
 nmad.michael.mito <- 3
 low.mito.michael <- isOutlier(michael.sce$percent.mt, type = "higher", nmad = nmad.michael.mito, log = FALSE)
 sum(low.mito.michael)
-pdf(paste0("../plots/qc-histMito-", nmad.michael.mito, "MADs-before.pdf"), width = 8)
+pdf(paste0("../plots/qc/qc-histMito-", nmad.michael.mito, "MADs-before.pdf"), width = 8)
 hist(michael.sce$percent.mt, breaks=100, col="grey80", main = "histogram of percentage mitochondria", xlab="percent of mitochondrial genes", ylab = "frequency", cex.lab = 1.4, cex.axis = 1.4)
 abline(v = min(michael.sce$percent.mt[which(low.mito.michael == 1)]), col="blue", lwd=2, lty=2)
 dev.off()
@@ -162,17 +168,17 @@ michael.sce <- michael.sce[,!discard.michael]
 ############################################################################
 ############################################################################
 # library size (count depth)
-pdf(paste0("../plots/qc-histLib-", nmad.michael, "MADs-after.pdf", sep = ""), width = 8)
+pdf(paste0("../plots/qc/qc-histLib-", nmad.michael, "MADs-after.pdf", sep = ""), width = 8)
 hist(log10(michael.sce$sum), breaks=100, main = "histogram of library size", col="grey80", xlab=expression(log[10]~"library size"), ylab = "frequency", cex.lab = 1.4, cex.axis = 1.4)
 dev.off()
 
 # number of detected genes
-pdf(paste0("../../plots/qc-histGenes-", nmad.michael, "MADs-after.pdf", sep = ""), width = 8)
+pdf(paste0("../../plots/qc/qc-histGenes-", nmad.michael, "MADs-after.pdf", sep = ""), width = 8)
 hist(log10(michael.sce$detected), breaks=100, main = "histogram of number of genes", col="grey80", xlab=expression(log[10]~"number of detected genes"), ylab = "frequency", cex.lab = 1.4, cex.axis = 1.4)
 dev.off()
 
 # percentage of mitochondrial genes
-pdf(paste0("../../plots/qc-histMito-", nmad.michael.mito, "MADs-after.pdf"), width = 8)
+pdf(paste0("../../plots/qc/qc-histMito-", nmad.michael.mito, "MADs-after.pdf"), width = 8)
 hist(michael.sce$percent.mt, breaks=100, col="grey80", main = "histogram of percentage mitochondria", xlab="percent of mitochondrial genes", ylab = "frequency", cex.lab = 1.4, cex.axis = 1.4)
 dev.off()
 
